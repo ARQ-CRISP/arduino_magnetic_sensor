@@ -1,15 +1,11 @@
 #include <Arduino.h>
 
-
 #include <ros.h>
 #include <ros/time.h>
 #include <std_msgs/String.h>
 #include <std_msgs/UInt16.h>
 #include "xSensorData.h"
 #include "xServerMsg.h"
-
-#include <geometry_msgs/Pose.h>
-#include <geometry_msgs/PoseArray.h>
 
 #include <Wire.h>
 
@@ -21,7 +17,6 @@
 #define ADD0 0b00
 #define ADD1 0b10 // Sensor 1 and 2 have their addresses swapped because of a connection error
 #define ADD2 0b01
-#define ADD3 0b11
 #define ADD3 0b11
 #define sensor_base 0b1100
 #define current_sensor ADD3
@@ -59,7 +54,7 @@ const byte sensors_array[] = {ADD0, ADD1, ADD2, ADD3};
 // geometry_msgs::PoseArray array;
 // ros::Publisher p("array", &array);  
 
-int32_t message_counter_seq = 0;
+// int32_t message_counter_seq = 0;
 
 void WireFlush()
 {
@@ -111,9 +106,9 @@ void MeasureAndPublish(byte address, bool retrieveAllSensors)
 
         for (int taxel_index = 0; taxel_index < 4; taxel_index++)
         {
-            single_taxel_measurment_msg[taxel_index].taxels = taxel_index+1;
+            single_taxel_measurment_msg[taxel_index].taxels = taxel_index+1; // Taxel list should start from 1 and be sequential
             
-            Measure(address|sensors_array[3], measurement[taxel_index]);
+            Measure(address|sensors_array[taxel_index], measurement[taxel_index]);
             single_taxel_measurment_msg[taxel_index].point.x = (float)measurement[taxel_index][0]; //x signal
             single_taxel_measurment_msg[taxel_index].point.y = (float)measurement[taxel_index][1]; //y signal
             single_taxel_measurment_msg[taxel_index].point.z = (float)measurement[taxel_index][2]; //z signal
@@ -141,31 +136,6 @@ void MeasureAndPublish(byte address, bool retrieveAllSensors)
         magnetic_sensor_publisher.publish( &sensor_measurment_msg );
 
     }
-
-    // sensor_measurment_msg.taxels = 1;
-    // int16_t measurement[3];
-    // Measure(address|current_sensor, measurement);
-    // sensor_measurment_msg.point.x = (float)measurement[0]; //x signal
-    // sensor_measurment_msg.point.y = (float)measurement[1]; //y signal
-    // sensor_measurment_msg.point.z = (float)measurement[2]; //z signal
-
-    // magnetic_sensor_publisher.publish( &sensor_measurment_msg );
-    // node_handle.logerror("Errors2..");
-
-    // sensor_measurment_msg.header.seq = message_counter_seq++;
-    // sensor_measurment_msg.header.stamp = node_handle.now();
-    // magnetic_sensor_publisher.publish( &sensor_measurment_msg );
-
-    // geometry_msgs::Pose pose[1];
-
-    // pose[0].position.x=1;
-    // pose[0].position.y=1;
-    // pose[0].position.z=1;
-
-    // array.poses_length = 1;
-    // array.poses= pose;
-
-    // p.publish(&array);
 
 }
 
