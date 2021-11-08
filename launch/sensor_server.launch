@@ -5,7 +5,7 @@
     </node>
     
     <!-- include grid map visualizer launcher-->
-    <include file="$(find arduino_magnetic_sensor)/launch/grid_map_visualization.launch">
-    </include>
+    <!-- <include file="$(find arduino_magnetic_sensor)/launch/grid_map_visualization.launch">
+    </include> -->
 
 </launch>

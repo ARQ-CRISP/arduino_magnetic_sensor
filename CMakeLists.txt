@@ -80,3 +80,12 @@ target_link_libraries(
 
 ## This makes sure message headers of this package are generated before being used. 
 add_dependencies(grid_map_ploter_arduino arduino_magnetic_sensor_generate_messages_cpp)
+
+#############
+## Install ##
+#############
+
+install(PROGRAMS
+  scripts/temporal_viz.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)

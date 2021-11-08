@@ -46,6 +46,8 @@
 ros::NodeHandle node_handle;
 
 arduino_magnetic_sensor::xServerMsg sensor_measurment_msg;
+// arduino_magnetic_sensor::xSensorData single_taxel_measurment_msg[4];
+// int16_t measurement[4][3];
 
 ros::Publisher magnetic_sensor_publisher("xServTopic", &sensor_measurment_msg);
 
@@ -96,14 +98,14 @@ void Measure(byte address, int16_t* measurements)
   measurements[2] = zMag;
 }
 
-void MeasureAndPublish(byte address, bool retrieveAllSensors)
+void MeasureAndPublish(byte address, bool retrieveAllSensors = false)
 {
 
     if (retrieveAllSensors)
     {
         arduino_magnetic_sensor::xSensorData single_taxel_measurment_msg[4];
         int16_t measurement[4][3];
-
+      
         for (int taxel_index = 0; taxel_index < 4; taxel_index++)
         {
             single_taxel_measurment_msg[taxel_index].taxels = taxel_index+1; // Taxel list should start from 1 and be sequential
@@ -113,9 +115,10 @@ void MeasureAndPublish(byte address, bool retrieveAllSensors)
             single_taxel_measurment_msg[taxel_index].point.y = (float)measurement[taxel_index][1]; //y signal
             single_taxel_measurment_msg[taxel_index].point.z = (float)measurement[taxel_index][2]; //z signal
 
-            sensor_measurment_msg.points_length = 4;
-            sensor_measurment_msg.points = single_taxel_measurment_msg;
         }
+
+        sensor_measurment_msg.points_length = 4;
+        sensor_measurment_msg.points = single_taxel_measurment_msg;
 
         magnetic_sensor_publisher.publish( &sensor_measurment_msg );
 
@@ -123,7 +126,27 @@ void MeasureAndPublish(byte address, bool retrieveAllSensors)
     }else{
 
         arduino_magnetic_sensor::xSensorData single_taxel_measurment_msg[1];
+        // arduino_magnetic_sensor::xSensorData single_taxel_measurment_msg[4];
         int16_t measurement[3];
+
+        // Measure(address|current_sensor, measurement);
+
+        // for (int taxel_index = 0; taxel_index < 4; taxel_index++)
+        // {
+        //     single_taxel_measurment_msg[taxel_index].taxels = 1; // Taxel list should start from 1 and be sequential
+            
+        //     single_taxel_measurment_msg[taxel_index].point.x = (float)measurement[0]; //x signal
+        //     single_taxel_measurment_msg[taxel_index].point.y = (float)measurement[1]; //y signal
+        //     single_taxel_measurment_msg[taxel_index].point.z = (float)measurement[2]; //z signal
+
+        // }
+
+        
+        // sensor_measurment_msg.points_length = 4;
+        // sensor_measurment_msg.points = single_taxel_measurment_msg;
+
+        // magnetic_sensor_publisher.publish( &sensor_measurment_msg );
+
 
         single_taxel_measurment_msg[0].taxels = 1;
         Measure(address|current_sensor, measurement);
@@ -290,8 +313,8 @@ void setup()
 void loop()
 {
   //Output data to serial monitor
-  MeasureAndPublish(sensor_base, true);
+  MeasureAndPublish(sensor_base);
   
   node_handle.spinOnce();
-  delay(100);  // 1 measurement per sensor per second (aprox).
+  delay(1);  // 1 measurement per sensor per second (aprox).
 }
