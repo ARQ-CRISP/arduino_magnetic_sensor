@@ -1,0 +1,94 @@
+#!/usr/bin/env python
+import numpy as np
+import rospy
+from arduino_magnetic_sensor.msg import xServerMsg
+
+
+class SensitivityExperiment:
+
+    def __init__(self):
+        rospy.init_node('sensitivity_experiment')
+
+        rospy.Subscriber("/xServTopic", xServerMsg, self.tactile_reading_callback)
+
+        # initially empty buffer
+        self.readings_buffer = []
+        self.buffer_size = 10
+
+        # to detect contact changes
+        self.last_avg_reading = None
+        self.change_threshold = 30
+        self.touching = False
+
+        # writing variables
+        self.last_index = 1
+        self.write_header()
+
+        # start an update timer
+        self.update_timer = rospy.Timer(rospy.Duration(2e-1), self.update_timer_callback)
+        self.writing_timer = None
+
+    def tactile_reading_callback(self, msg):
+        # create a np array for each point
+        point = msg.points[0].point
+        reading = np.array([point.x, point.y, point.z])
+        self.readings_buffer.append(reading)
+
+        # maintain buffer size, remove oldest
+        if len(self.readings_buffer) > self.buffer_size:
+            self.readings_buffer.pop(0)
+
+    def update_timer_callback(self, event):
+        if len(self.readings_buffer) < self.buffer_size:
+            return
+
+        change = self.contact_change()
+        if not self.touching and change > self.change_threshold:
+            # print('added touch (%f)' % change)
+            self.touching = True
+            rospy.Timer(rospy.Duration(1), self.writing_timer_callback, oneshot = True)
+
+        if self.touching and -change > self.change_threshold:
+            # print('removed touch (%f)' % change)
+            self.touching = False
+            rospy.Timer(rospy.Duration(0.5), self.writing_timer_callback, oneshot = True)
+
+    def write_header(self):
+        print 'exp_id,',
+        # print 'x1,y1,z1,',
+        print 'norm1,',
+        # print 'x2,y2,z2,',
+        print 'norm2,',
+
+    def writing_timer_callback(self, event):
+        if self.touching:
+            # index
+            print '\n%d,' % self.last_index,
+            self.last_index += 1
+        # reading
+        last_reading = self.readings_buffer[-1]
+        # print x,y,z values
+        # print '%.2f,%.2f,%.2f,' % (last_reading[0], last_reading[1], last_reading[2]),
+        # print the norm
+        print '%.2f,' % np.linalg.norm(last_reading),
+
+        # self.update_timer = rospy.Timer(rospy.Duration(1e-1), self.update_timer_callback)
+
+    def contact_change(self):
+        """ check if the contact status changed in the last buffer """
+        change = 0
+
+        average_reading = np.mean([np.linalg.norm(x) for x in self.readings_buffer])
+
+        if self.last_avg_reading is not None:
+            change = average_reading - self.last_avg_reading
+
+        # update last reading
+        self.last_avg_reading = average_reading
+
+        return change
+
+if __name__ == '__main__':
+    node = SensitivityExperiment()
+
+    rospy.spin()
