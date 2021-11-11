@@ -62,6 +62,9 @@ prototype = ""
 meshplots_path = ""
 hdf5_file_path = ""
 
+## Sequence counters
+contact_sequence = 1
+
 
 # pick the desired colormap, sensible levels, and define a normalization 
 # instance which takes data values and translates those into levels. 
@@ -116,6 +119,7 @@ def callback_read_tactile_data(msg):
     global recorded_sample
     global save_data
     global is_contact_detected
+    global contact_sequence
     
     last_sensor_readings = np.roll(last_sensor_readings, 1, axis = 1)
     last_sensor_readings[0, 0] = msg.points[0].point.x
@@ -163,7 +167,8 @@ def callback_read_tactile_data(msg):
     # print(np.std(diff_sensor_readings))
     if np.std(diff_sensor_readings) > 7:
         # print('>>CONTACT DETECTED!')
-        pub_contact_detect.publish(String("CONTACT DETECTED"))
+        pub_contact_detect.publish(String("Contact Detected: "+str(contact_sequence)))
+        contact_sequence += 1
         # print(diff_sensor_readings[2]) 
         if not record_data and diff_sensor_readings[2] > 0: # Assuming difference in Z channel will be negative when object is "lifted" from the sensor
             print(">> Pressing Contact detected - Will attempt to save data now")
@@ -343,9 +348,9 @@ if __name__ == '__main__':
             save_data = False
             print("  << Figure has been saved")
 
-            print("  >> Saving data in HDF5 file")
-            saveH5pyFile(exp_name_str, hdf5_file_path, str(figure_sequence), sensor_readings_snapshot)
-            print("  << Data has been saved")
+            # print("  >> Saving data in HDF5 file")
+            # saveH5pyFile(exp_name_str, hdf5_file_path, str(figure_sequence), sensor_readings_snapshot)
+            # print("  << Data has been saved")
 
             figure_sequence += 1
 
@@ -359,6 +364,7 @@ if __name__ == '__main__':
 
         plt.draw()
         plt.pause(0.001)
+        # rospy.sleep(0.01)
 
     rospy.spin()
 
