@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import rospy
 from arduino_magnetic_sensor.msg import xServerMsg
+import matplotlib.pyplot as plt
 
 class ContactDetector:
 
@@ -13,10 +14,13 @@ class ContactDetector:
 
         # to detect contact changes
         self.last_avg_reading = None
-        self.change_threshold = 15
+        self.change_threshold = 10
         self.touching = False
 
+        #timing
         self.t = 0
+        self.t_change = 0 # time of last change
+        self.check_period = 5 # do not check every sample
 
     def add_reading(self, x, y, z):
         reading = np.array([x, y, z])
@@ -28,21 +32,29 @@ class ContactDetector:
 
         self.t += 1
 
-        if self.t % 5 == 0:
+        if self.t % self.check_period == 0:
             self.update_contact()
 
     def update_contact(self):
+        # buffer not full
         if len(self.readings_buffer) < self.buffer_size:
             return
 
         change = self.contact_change()
+
+        # ignore short jumps
+        if self.t < self.t_change + self.check_period * 20:
+            return
+
         if not self.touching and change > self.change_threshold:
             print('added touch (%f)' % change)
             self.touching = True
+            self.t_change = self.t
 
         if self.touching and -change > self.change_threshold:
             print('removed touch (%f)' % change)
             self.touching = False
+            self.t_change = self.t
 
     def contact_change(self):
         """ check if the contact status changed in the last buffer """
@@ -70,36 +82,68 @@ class SensitivityBagToCsv:
 
         rospy.Subscriber("/xServTopic", xServerMsg, self.tactile_reading_callback)
 
+        self.filename = rospy.get_param('~filename', 'output')
+
         # timing
         self.t = 0
+        self.t_grounding = 20
 
         self.contact_detector = ContactDetector()
 
         # create a dataframe to write csv
-        self.df_readings = pd.DataFrame(columns=['time', 'norm', 'x', 'y', 'z'])
+        self.df_readings = pd.DataFrame(columns=['time', 'norm', 'x', 'y', 'z','touch'])
+        self.df_ground = pd.DataFrame(columns=['time', 'norm', 'x', 'y', 'z','touch'])
 
     def tactile_reading_callback(self, msg):
-        row_data = {'time':self.t}
+        row_data = {'time':[self.t]}
         self.t += 1
 
         # create a np array for each point
         point = msg.points[0].point
         norm_val = np.linalg.norm([point.x, point.y, point.z])
-        row_data['norm'] = norm_val
-        row_data['x'] = point.x
-        row_data['y'] = point.y
-        row_data['z'] = point.z
+        row_data['norm'] = [norm_val]
+        row_data['x'] = [point.x]
+        row_data['y'] = [point.y]
+        row_data['z'] = [point.z]
+        row_data['touch'] = [False] # using [] because df.from_dict wants it
+
+        ground = self.ground_readings(row_data)
+        if ground is False:
+            return
 
         self.contact_detector.add_reading(point.x, point.y, point.z)
         row_data['touch'] = self.contact_detector.get_contact()
 
-        # print(row_data)
         # print '.',
-        self.df_readings = self.df_readings.append(row_data, ignore_index=True)
+        grounded_reading = pd.DataFrame.from_dict(row_data) - self.df_ground
+        self.df_readings = self.df_readings.append(grounded_reading, ignore_index=True)
+
+    def ground_readings(self, row_data):
+        # collect initial readings
+        if self.t < self.t_grounding:
+            self.df_ground = self.df_ground.append(pd.DataFrame.from_dict(row_data), ignore_index=True)
+            return False
+        # set the ground
+        if self.t == self.t_grounding:
+            self.df_ground = self.df_ground.mean()
+            self.df_ground['time'] = 0
+            print 'ground:'
+            print self.df_ground
+
+        return self.df_ground
 
     def write_csv(self):
         print(self.df_readings.head())
-        self.df_readings.to_csv('output.csv', index=False)
+        self.df_readings.to_csv(self.filename + '.csv', index=False)
+
+        print(self.df_ground)
+
+        print('saving plot' + self.filename + '.png')
+        plt.plot(self.df_readings['time'], self.df_readings['norm'], label='norm (grounded)')
+        plt.plot(self.df_readings['time'], self.df_readings['touch']*10, label='touch (scaled)')
+        plt.legend(loc='best')
+        plt.savefig(self.filename + '.png')
+        plt.show()
 
 
 if __name__ == '__main__':
