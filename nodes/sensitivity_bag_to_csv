@@ -78,7 +78,7 @@ class ContactDetector:
 class SensitivityBagToCsv:
 
     def __init__(self):
-        rospy.init_node('sensitivity_experiment')
+        rospy.init_node('sensitivity_bag_to_csv')
 
         rospy.Subscriber("/xServTopic", xServerMsg, self.tactile_reading_callback)
 
