@@ -15,5 +15,6 @@ add_definitions(-DUSB_CON)
 generate_arduino_firmware(server
   SRCS arduino-server.cpp ${ROS_LIB_DIR}/time.cpp
   BOARD uno
-  PORT /dev/ttyACM0
+  PORT /dev/ttyUSB0
+  # PORT /dev/ttyACM0
 )

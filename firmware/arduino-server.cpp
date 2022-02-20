@@ -313,7 +313,8 @@ void setup()
 void loop()
 {
   //Output data to serial monitor
-  MeasureAndPublish(sensor_base);
+  // MeasureAndPublish(sensor_base);
+  MeasureAndPublish(sensor_base, true);
   
   node_handle.spinOnce();
   delay(1);  // 1 measurement per sensor per second (aprox).
