@@ -51,10 +51,10 @@ arduino_magnetic_sensor::xServerMsg sensor_measurment_msg;
 
 ros::Publisher magnetic_sensor_publisher("xServTopic", &sensor_measurment_msg);
 
-const byte sensors_array[] = {ADD0, ADD1, ADD2, ADD3};
+const byte sensors_array[] = {ADD0, ADD1, ADD3, ADD2};
 
 // geometry_msgs::PoseArray array;
-// ros::Publisher p("array", &array);  
+// ros::Publisher p("array", &array);
 
 // int32_t message_counter_seq = 0;
 
@@ -105,14 +105,14 @@ void MeasureAndPublish(byte address, bool retrieveAllSensors = false)
     {
         arduino_magnetic_sensor::xSensorData single_taxel_measurment_msg[4];
         int16_t measurement[4][3];
-      
+
         for (int taxel_index = 0; taxel_index < 4; taxel_index++)
         {
             single_taxel_measurment_msg[taxel_index].taxels = taxel_index+1; // Taxel list should start from 1 and be sequential
-            
+
             Measure(address|sensors_array[taxel_index], measurement[taxel_index]);
-            single_taxel_measurment_msg[taxel_index].point.x = (float)measurement[taxel_index][0]; //x signal
-            single_taxel_measurment_msg[taxel_index].point.y = (float)measurement[taxel_index][1]; //y signal
+            single_taxel_measurment_msg[taxel_index].point.x = (float)measurement[taxel_index][1]; //x signal
+            single_taxel_measurment_msg[taxel_index].point.y = (float)measurement[taxel_index][0]; //y signal
             single_taxel_measurment_msg[taxel_index].point.z = (float)measurement[taxel_index][2]; //z signal
 
         }
@@ -134,14 +134,14 @@ void MeasureAndPublish(byte address, bool retrieveAllSensors = false)
         // for (int taxel_index = 0; taxel_index < 4; taxel_index++)
         // {
         //     single_taxel_measurment_msg[taxel_index].taxels = 1; // Taxel list should start from 1 and be sequential
-            
+
         //     single_taxel_measurment_msg[taxel_index].point.x = (float)measurement[0]; //x signal
         //     single_taxel_measurment_msg[taxel_index].point.y = (float)measurement[1]; //y signal
         //     single_taxel_measurment_msg[taxel_index].point.z = (float)measurement[2]; //z signal
 
         // }
 
-        
+
         // sensor_measurment_msg.points_length = 4;
         // sensor_measurment_msg.points = single_taxel_measurment_msg;
 
@@ -171,7 +171,7 @@ void BurstIndividual(byte address)
   Wire.endTransmission(true);
   if(Wire.available()>0)
     {
-      byte statusbyte = Wire.read();  
+      byte statusbyte = Wire.read();
     }
 }
 
@@ -260,7 +260,7 @@ void ConfigureSensors()
   BL = BL | (DIG_FILT<<2);
   BL = BL | OSR;
   WriteAllRegisters(BH,BL,2);
-  
+
   ExitAll();
   WireFlush();
   delay(250);
@@ -307,7 +307,7 @@ void setup()
   ResetAll();
   ConfigureSensors(); // COnfigures all sensors parameters
   StartBurst();
-  delay(100); 
+  delay(100);
 }
 
 void loop()
@@ -315,7 +315,7 @@ void loop()
   //Output data to serial monitor
   // MeasureAndPublish(sensor_base);
   MeasureAndPublish(sensor_base, true);
-  
+
   node_handle.spinOnce();
   delay(1);  // 1 measurement per sensor per second (aprox).
 }

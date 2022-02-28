@@ -33,9 +33,9 @@ generate_messages(
 )
 
 catkin_package(
-  CATKIN_DEPENDS 
+  CATKIN_DEPENDS
   rospy
-  roscpp 
+  roscpp
   std_msgs
   geometry_msgs
   message_runtime
@@ -73,13 +73,24 @@ add_executable(
   src/grid_map_ploter.cpp
 )
 
+add_executable(
+  calibrate_data
+  src/calibrate_data.cpp
+)
+
+target_link_libraries(
+  calibrate_data
+  ${catkin_LIBRARIES}
+)
+
 target_link_libraries(
   grid_map_ploter_arduino
   ${catkin_LIBRARIES}
 )
 
-## This makes sure message headers of this package are generated before being used. 
+## This makes sure message headers of this package are generated before being used.
 add_dependencies(grid_map_ploter_arduino arduino_magnetic_sensor_generate_messages_cpp)
+add_dependencies(calibrate_data arduino_magnetic_sensor_generate_messages_cpp)
 
 #############
 ## Install ##

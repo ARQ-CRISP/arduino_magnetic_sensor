@@ -20,48 +20,11 @@
 
 #include <cmath>
 
-// Hardcoded values retrieved from trial & error
-#define XNODEMAXREAD 5000
-#define YNODEMAXREAD 5000
-#define ZNODEMAXREAD 5000
-
 using namespace grid_map;
 using namespace std;
 
 ros::Publisher publisher;
-int sensor_to_visualize;
 
-float uskin_pad[4][3];
-float uskin_pad_min_reads[4][3] = {{65000, 65000, 65000},
-                                    {65000, 65000, 65000},
-                                    {65000, 65000, 65000},
-                                    {65000, 65000, 65000}};
-int min_reads = 0;
-bool normalized_flag = false;
-
-
-void normalize(int x, int y, int z, int index, float values_normalized[24][3])
-{
-  // if (index == 0){
-  //   cout << "values before normalize: x: "<< x << "  y: " << y << "  z: " << z << endl;
-  //   cout << "uskin min reads: "<< uskin_pad_min_reads[0][0] << "  y: " << uskin_pad_min_reads[0][1] << "  z: " << uskin_pad_min_reads[0][2] << endl;
-  // }
-
-  values_normalized[index][0] = (int)((((float)x - uskin_pad_min_reads[index][0]) / (XNODEMAXREAD - uskin_pad_min_reads[index][0])) * 100);
-  values_normalized[index][1] = (int)((((float)y - uskin_pad_min_reads[index][1]) / (YNODEMAXREAD - uskin_pad_min_reads[index][1])) * 100);
-  values_normalized[index][2] = (int)((((float)z - uskin_pad_min_reads[index][2]) / (ZNODEMAXREAD - uskin_pad_min_reads[index][2])) * 100);
-  // if (z_value < 0)
-  //   z_value = 0; // Force Z to be above 0. Z would only get negative values if a node is being "pulled", which should not happen
-  // Force normalized valies to be within boundaries
-  values_normalized[index][2] < 0 ? values_normalized[index][2] = 0 : (values_normalized[index][2] > 100 ? values_normalized[index][2] = 100 : values_normalized[index][2]);
-  values_normalized[index][0] < -100 ? values_normalized[index][0] = -100 : (values_normalized[index][0] > 100 ? values_normalized[index][0] = 100 : values_normalized[index][0]);
-  values_normalized[index][1] < -100 ? values_normalized[index][1] = -100 : (values_normalized[index][1] > 100 ? values_normalized[index][1] = 100 : values_normalized[index][1]);
-
-  // if (index == 0)
-  // cout << "values before: x: "<< values_normalized[0][0] << "  y: " << values_normalized[0][1] << "  z: " << values_normalized[0][2] << endl;
-
-  return;
-}
 
 void ploterCallback(const arduino_magnetic_sensor::xServerMsg &msg)
 {
@@ -75,40 +38,6 @@ void ploterCallback(const arduino_magnetic_sensor::xServerMsg &msg)
   // Add data to grid map.
   ros::Time time = ros::Time::now();
 
-  // cout << min_reads<< endl;
-
-  if (min_reads < 10 || !normalized_flag)
-  {
-    normalized_flag = true;
-    for (int i = 0; i < 4; i++)
-    {
-        // cout <<"Got values for taxel " << i << " are x: "<<  msg.points[i].point.x << "  y: " <<  msg.points[i].point.y << "  z: " <<  msg.points[i].point.z << endl;
-        if (msg.points[i].point.x < uskin_pad_min_reads[i][0] && msg.points[i].point.x != 0)
-          uskin_pad_min_reads[i][0] = msg.points[i].point.x;
-        if (msg.points[i].point.y < uskin_pad_min_reads[i][1] && msg.points[i].point.y != 0)
-          uskin_pad_min_reads[i][1] = msg.points[i].point.y;
-        if (msg.points[i].point.z < uskin_pad_min_reads[i][2] && msg.points[i].point.z != 0)
-          uskin_pad_min_reads[i][2] = msg.points[i].point.z;
-
-        if(uskin_pad_min_reads[i][0] == 65000 || uskin_pad_min_reads[i][1] == 65000 || uskin_pad_min_reads[i][2] == 65000)
-          normalized_flag = false;
-
-        // cout <<"Min values for taxel " << i << " are x: "<< uskin_pad_min_reads[i][0] << "  y: " << uskin_pad_min_reads[i][1] << "  z: " << uskin_pad_min_reads[i][2] << endl;
-
-    }
-        cout << endl;
-    min_reads++;
-    cout <<"Min values readings: " << min_reads << endl;
-
-    return;
-  }
-
-
-  for (int i = 0; i < 4; i++)  
-    normalize(msg.points[i].point.x, msg.points[i].point.y, msg.points[i].point.z, i, uskin_pad);
- 
-
-
 
   for (GridMapIterator it(map); !it.isPastEnd(); ++it)
   {
@@ -116,14 +45,14 @@ void ploterCallback(const arduino_magnetic_sensor::xServerMsg &msg)
     map.getPosition(*it, position);
     Index index;
     map.getIndex(position, index);
-    // cout << "Position: (" << index(0) << ","<< index(1) << ") -> uskin_pad index: " << (index(1))+ (index(0)) * 6 << endl;
+    // cout << "Position: (" << index(0) << ","<< index(1) << ") -> msg.points index: " << (index(1))+ (index(0)) * 6 << endl;
 
-    float vector_lenght = sqrt(pow(uskin_pad[(index(1))+ (index(0)) * 2][0], 2) + pow(uskin_pad[(index(1)) + (index(0)) * 6][1], 2) + pow(uskin_pad[(index(1)) + (index(0)) * 6][2], 2));
+    float vector_lenght = sqrt(pow((float)msg.points[(index(1))+ (index(0)) * 2].point.x, 2) + pow((float)msg.points[(index(1)) + (index(0)) * 6].point.y, 2) + pow((float)msg.points[(index(1)) + (index(0)) * 6].point.z, 2));
 
-    map.at("elevation", *it) = -1 * uskin_pad[(index(1)) + (index(0)) * 2][2];
-    map.at("normal_x", *it) = -1 * uskin_pad[(index(1)) + (index(0)) * 2][1] * 10 / vector_lenght;
-    map.at("normal_y", *it) = -1 * uskin_pad[(index(1)) + (index(0)) * 2][0] * 10 / vector_lenght;
-    map.at("normal_z", *it) = uskin_pad[(index(1)) + (index(0)) * 2][2] * 10 / vector_lenght;
+    map.at("elevation", *it) = (float)msg.points[(index(1)) + (index(0)) * 2].point.z;
+    map.at("normal_x", *it) = (float)msg.points[(index(1)) + (index(0)) * 2].point.y * 10 / vector_lenght;
+    map.at("normal_y", *it) = (float)msg.points[(index(1)) + (index(0)) * 2].point.x * 10 / vector_lenght;
+    map.at("normal_z", *it) = (float)msg.points[(index(1)) + (index(0)) * 2].point.z * 10 / vector_lenght;
 
     // ROS_INFO("Printing node %s at position x:%i, y:%i, with value %f", msg.points[(index(1)) * 4 + (index(0))].header.frame_id.c_str(), index(0), index(1), msg.points[(index(1)) * 4 + (index(0))].point.z);
   }
@@ -144,7 +73,7 @@ int main(int argc, char **argv)
 
   publisher = nh.advertise<grid_map_msgs::GridMap>("grid_map", 1, true);
 
-  ros::Subscriber sub = nh.subscribe("/xServTopic", 1000, ploterCallback);
+  ros::Subscriber sub = nh.subscribe("/xServTopic_calibrated", 1000, ploterCallback);
 
   ros::spin();
   // Wait for next cycle.

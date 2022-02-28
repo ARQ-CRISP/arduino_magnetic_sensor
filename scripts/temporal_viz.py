@@ -12,15 +12,15 @@ from numpy.core.records import record
 from numpy.lib.function_base import diff
 
 import rospy
-from arduino_magnetic_sensor.msg import xServerMsg, xSensorData 
+from arduino_magnetic_sensor.msg import xServerMsg, xSensorData
 from std_msgs.msg import String
 
 
-window_size = 160 # Defines number of consequetive samples to visualize/save 
+window_size = 160 # Defines number of consequetive samples to visualize/save
 
 # Use True if you wish visualization scale to bounded withing minimum/maximum readings for each experiment
 # Otherwise scale will be fixed to boundaries described bellow
-dynamicScale = False
+dynamicScale = True
 X_MIN = -250
 X_MAX = 250
 Y_MIN = -100
@@ -66,10 +66,10 @@ hdf5_file_path = ""
 contact_sequence = 1
 
 
-# pick the desired colormap, sensible levels, and define a normalization 
-# instance which takes data values and translates those into levels. 
-cmap0 = plt.get_cmap('RdBu') 
-cmap1 = plt.get_cmap('RdBu') 
+# pick the desired colormap, sensible levels, and define a normalization
+# instance which takes data values and translates those into levels.
+cmap0 = plt.get_cmap('RdBu')
+cmap1 = plt.get_cmap('RdBu')
 cmap2 = plt.get_cmap('Greens')
 
 fig, (ax0, ax1, ax2) = plt.subplots(nrows=3)
@@ -120,7 +120,7 @@ def callback_read_tactile_data(msg):
     global save_data
     global is_contact_detected
     global contact_sequence
-    
+
     last_sensor_readings = np.roll(last_sensor_readings, 1, axis = 1)
     last_sensor_readings[0, 0] = msg.points[0].point.x
     last_sensor_readings[1, 0] = msg.points[0].point.y
@@ -128,7 +128,7 @@ def callback_read_tactile_data(msg):
 
     last_sensor_readings[:,0] = -1*last_sensor_readings[:, 0]
 
-    if is_first_reading: # 'Calibrate' following sensor readings by removing measurments with sensor at rest 
+    if is_first_reading: # 'Calibrate' following sensor readings by removing measurments with sensor at rest
         base_sensor_readings = last_sensor_readings[:,0].copy() # Should we consider more readings?
         last_sensor_readings[:,0] = calibrate_sensor_reading(last_sensor_readings[:,0])
         min_sensor_readings = last_sensor_readings[:,0].copy()
@@ -169,7 +169,7 @@ def callback_read_tactile_data(msg):
         # print('>>CONTACT DETECTED!')
         pub_contact_detect.publish(String("Contact Detected: "+str(contact_sequence)))
         contact_sequence += 1
-        # print(diff_sensor_readings[2]) 
+        # print(diff_sensor_readings[2])
         if not record_data and diff_sensor_readings[2] > 0: # Assuming difference in Z channel will be negative when object is "lifted" from the sensor
             print(">> Pressing Contact detected - Will attempt to save data now")
             # is_contact_detected = True
@@ -248,12 +248,12 @@ def init_services():
         print('Sucessfully read hdf5_file_path {}'.format(hdf5_file_path))
     else:
         print('Unable to find hdf5_file_path')
-        
+
 
 
 if __name__ == '__main__':
-    # global save_data 
-    
+    # global save_data
+
     rospy.init_node('temporal_viz', anonymous=True)
 
     init_services()
@@ -261,18 +261,18 @@ if __name__ == '__main__':
     plt.ion()
     plt.show()
 
-    fig.patch.set_facecolor('lightgrey')    
- 
+    fig.patch.set_facecolor('lightgrey')
 
-    # x and y are bounds, so z should be the value *inside* those bounds. 
+
+    # x and y are bounds, so z should be the value *inside* those bounds.
     # Therefore, remove the last value from the z array.
-    if dynamicScale: 
-        levels0 = MaxNLocator(nbins=window_size/10).tick_values(last_sensor_readings[0].min(), last_sensor_readings[0].max()) 
-        levels1= MaxNLocator(nbins=window_size/10).tick_values(last_sensor_readings[1].min(), last_sensor_readings[1].max()) 
+    if dynamicScale:
+        levels0 = MaxNLocator(nbins=window_size/10).tick_values(last_sensor_readings[0].min(), last_sensor_readings[0].max())
+        levels1= MaxNLocator(nbins=window_size/10).tick_values(last_sensor_readings[1].min(), last_sensor_readings[1].max())
         levels2 = MaxNLocator(nbins=window_size).tick_values(last_sensor_readings[2].min(), last_sensor_readings[2].max())
     else:
-        levels0 = MaxNLocator(nbins=window_size/10).tick_values(X_MIN, X_MAX) 
-        levels1= MaxNLocator(nbins=window_size/10).tick_values(Y_MIN, Y_MAX) 
+        levels0 = MaxNLocator(nbins=window_size/10).tick_values(X_MIN, X_MAX)
+        levels1= MaxNLocator(nbins=window_size/10).tick_values(Y_MIN, Y_MAX)
         levels2 = MaxNLocator(nbins=window_size).tick_values(Z_MIN, Z_MAX)
 
 
@@ -284,26 +284,26 @@ if __name__ == '__main__':
     norm1 = BoundaryNorm(levels1, ncolors=cmap1.N, clip=True)
     norm2 = BoundaryNorm(levels2, ncolors=cmap2.N, clip=True)
 
-    
+
     im0 = ax0.pcolormesh(X, Y, np.tile(last_sensor_readings[0], (2,1)), cmap=cmap0, norm=norm0) # np.tile repeats readings row (pcolormesh requires matri data)
-    cbar0 = fig.colorbar(im0, ax=ax0) 
-    ax0.set_title('Channel X') 
+    cbar0 = fig.colorbar(im0, ax=ax0)
+    ax0.set_title('Channel X')
 
     im1 = ax1.pcolormesh(X, Y, np.tile(last_sensor_readings[1], (2,1)), cmap=cmap1, norm=norm1) # np.tile repeats readings row (pcolormesh requires matri data)
-    cbar1 = fig.colorbar(im1, ax=ax1) 
-    ax1.set_title('Channel Y') 
+    cbar1 = fig.colorbar(im1, ax=ax1)
+    ax1.set_title('Channel Y')
 
     im2 = ax2.pcolormesh(X, Y, np.tile(last_sensor_readings[2], (2,1)), cmap=cmap2, norm=norm2) # np.tile repeats readings row (pcolormesh requires matri data)
-    cbar2 = fig.colorbar(im2, ax=ax2) 
-    ax2.set_title('Channel Z') 
+    cbar2 = fig.colorbar(im2, ax=ax2)
+    ax2.set_title('Channel Z')
 
     ax2.set_xlabel('Number of previous samples')
     ax0.axes.yaxis.set_visible(False)
     ax1.axes.yaxis.set_visible(False)
     ax2.axes.yaxis.set_visible(False)
-    
-    
-    fig.tight_layout(rect=[0, 0.03, 1, 0.95]) 
+
+
+    fig.tight_layout(rect=[0, 0.03, 1, 0.95])
     fig.suptitle('Pcolormesh of the sensor last '+str(window_size)+' samples', fontsize=16)
 
 
@@ -313,21 +313,21 @@ if __name__ == '__main__':
     figure_sequence = 1
 
     while not rospy.is_shutdown():
-        # x and y are bounds, so z should be the value *inside* those bounds. 
+        # x and y are bounds, so z should be the value *inside* those bounds.
         # Therefore, remove the last value from the z array.
-    
+
 
         # print("min0: {}, max0 {}".format(min_sensor_readings[0], min_sensor_readings[0]))
         # print("min1: {}, max1 {}".format(min_sensor_readings[1], max_sensor_readings[1]))
         # print("min2: {}, max2 {}".format(min_sensor_readings[2], max_sensor_readings[2]))
 
         if dynamicScale:
-            levels0 = MaxNLocator(nbins=window_size/10).tick_values(min_sensor_readings[0], max_sensor_readings[0]) 
-            levels1= MaxNLocator(nbins=window_size/10).tick_values(min_sensor_readings[1],  max_sensor_readings[1]) 
+            levels0 = MaxNLocator(nbins=window_size/10).tick_values(min_sensor_readings[0], max_sensor_readings[0])
+            levels1= MaxNLocator(nbins=window_size/10).tick_values(min_sensor_readings[1],  max_sensor_readings[1])
             levels2 = MaxNLocator(nbins=window_size).tick_values(min_sensor_readings[2], max_sensor_readings[2])
         else:
-            levels0 = MaxNLocator(nbins=window_size/10).tick_values(X_MIN, X_MAX) 
-            levels1= MaxNLocator(nbins=window_size/10).tick_values(Y_MIN, Y_MAX) 
+            levels0 = MaxNLocator(nbins=window_size/10).tick_values(X_MIN, X_MAX)
+            levels1= MaxNLocator(nbins=window_size/10).tick_values(Y_MIN, Y_MAX)
             levels2 = MaxNLocator(nbins=window_size).tick_values(Z_MIN, Z_MAX)
 
         norm0 = BoundaryNorm(levels0, ncolors=cmap0.N, clip=True)
@@ -367,4 +367,3 @@ if __name__ == '__main__':
         # rospy.sleep(0.01)
 
     rospy.spin()
-
