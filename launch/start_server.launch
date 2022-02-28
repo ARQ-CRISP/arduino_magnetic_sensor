@@ -1,13 +1,60 @@
 <launch>
 
+    <!-- Optional arguments to include-->
+    <!-- <arg name="object_size" default="" />
+    <arg name="object_weight" default="" />
+    <arg name="prototype" default="" />
+    <arg name="save_data" default="false" /> -->
+
     <node name="serial_node" pkg="rosserial_python" type="serial_node.py">
         <!-- <param name="port" type="string" value="/dev/ttyACM0"/> -->
         <param name="port" type="string" value="/dev/ttyUSB0"/>
         <param name="baud" type="int" value="57600"/>
     </node>
 
+    <!-- Launch the grid map simple demo node -->
+    <node pkg="arduino_magnetic_sensor" type="calibrate_data" name="calibrate_data" output="screen">
+    </node>
+
     <!-- include grid map visualizer launcher-->
     <!-- <include file="$(find arduino_magnetic_sensor)/launch/grid_map_visualization.launch">
     </include> -->
+
+    <!-- include rqt_plot visualizer node, the arguments can be changed-->
+    <node name="rqt_plot" pkg="rqt_plot" type="rqt_plot"
+      args="/xServTopic_calibrated/points[0]/point/x
+      /xServTopic_calibrated/points[0]/point/y
+      /xServTopic_calibrated/points[0]/point/z
+      /xServTopic_calibrated/points[1]/point/x
+      /xServTopic_calibrated/points[1]/point/y
+      /xServTopic_calibrated/points[1]/point/z
+      /xServTopic_calibrated/points[2]/point/x
+      /xServTopic_calibrated/points[2]/point/y
+      /xServTopic_calibrated/points[2]/point/z
+      /xServTopic_calibrated/points[3]/point/x
+      /xServTopic_calibrated/points[3]/point/y
+      /xServTopic_calibrated/points[3]/point/z"/>
+
+      <!-- Same as before, but exposing the calibrate, event-driven sensor data-->
+      <!-- <node name="rqt_plot" pkg="rqt_plot" type="rqt_plot"
+        args="/xServTopic_calibrated_event/points[0]/point/x
+        /xServTopic_calibrated_event/points[0]/point/y
+        /xServTopic_calibrated_event/points[0]/point/z
+        /xServTopic_calibrated_event/points[1]/point/x
+        /xServTopic_calibrated_event/points[1]/point/y
+        /xServTopic_calibrated_event/points[1]/point/z
+        /xServTopic_calibrated_event/points[2]/point/x
+        /xServTopic_calibrated_event/points[2]/point/y
+        /xServTopic_calibrated_event/points[2]/point/z
+        /xServTopic_calibrated_event/points[3]/point/x
+        /xServTopic_calibrated_event/points[3]/point/y
+        /xServTopic_calibrated_event/points[3]/point/z"/> -->
+
+
+      <!-- Optional node to record ROS topics data-->
+      <!-- <group if="$(arg save_data)">
+          <node pkg="rosbag" type="record" name="Experiment_$(arg object_size)_$(arg object_weight)_$(arg prototype)"
+      args="record -o $(find arduino_magnetic_sensor)/files/ros_bags/rosbag_Experiment_$(arg object_size)_$(arg object_weight)_$(arg prototype) /xServTopic /xServTopic_calibrated" />
+      </group> -->
 
 </launch>
