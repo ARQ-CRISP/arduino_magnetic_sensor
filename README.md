@@ -27,3 +27,9 @@ catkin_make arduino_magnetic_sensor_firmware_server-upload
 ```
 **NOTE**: The second command uploads the server code to the arduino board
 
+### Launching the code
+```console
+roslaunch arduino_magnetic_sensor start_server.launch
+```
+**NOTE**: This file can be edited to include/remove visualization and/or calibration nodes
+
