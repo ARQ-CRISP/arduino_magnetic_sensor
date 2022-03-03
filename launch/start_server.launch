@@ -1,10 +1,11 @@
 <launch>
 
     <!-- Optional arguments to include-->
-    <!-- <arg name="object_size" default="" />
-    <arg name="object_weight" default="" />
-    <arg name="prototype" default="" />
-    <arg name="save_data" default="false" /> -->
+    <arg name="object" default="grape" />
+    <arg name="object_number" default="1" />
+    <arg name="object_info" default="old" />
+    <arg name="prototype" default="dragonskin_50_cilia" />
+    <arg name="save_data" default="true" />
 
     <node name="serial_node" pkg="rosserial_python" type="serial_node.py">
         <!-- <param name="port" type="string" value="/dev/ttyACM0"/> -->
@@ -21,7 +22,7 @@
     </include> -->
 
     <!-- include rqt_plot visualizer node, the arguments can be changed-->
-    <node name="rqt_plot" pkg="rqt_plot" type="rqt_plot"
+    <!-- <node name="rqt_plot" pkg="rqt_plot" type="rqt_plot"
       args="/xServTopic_calibrated/points[0]/point/x
       /xServTopic_calibrated/points[0]/point/y
       /xServTopic_calibrated/points[0]/point/z
@@ -33,10 +34,10 @@
       /xServTopic_calibrated/points[2]/point/z
       /xServTopic_calibrated/points[3]/point/x
       /xServTopic_calibrated/points[3]/point/y
-      /xServTopic_calibrated/points[3]/point/z"/>
+      /xServTopic_calibrated/points[3]/point/z"/> -->
 
       <!-- Same as before, but exposing the calibrate, event-driven sensor data-->
-      <!-- <node name="rqt_plot" pkg="rqt_plot" type="rqt_plot"
+      <node name="rqt_plot" pkg="rqt_plot" type="rqt_plot"
         args="/xServTopic_calibrated_event/points[0]/point/x
         /xServTopic_calibrated_event/points[0]/point/y
         /xServTopic_calibrated_event/points[0]/point/z
@@ -48,13 +49,13 @@
         /xServTopic_calibrated_event/points[2]/point/z
         /xServTopic_calibrated_event/points[3]/point/x
         /xServTopic_calibrated_event/points[3]/point/y
-        /xServTopic_calibrated_event/points[3]/point/z"/> -->
+        /xServTopic_calibrated_event/points[3]/point/z"/>
 
 
       <!-- Optional node to record ROS topics data-->
-      <!-- <group if="$(arg save_data)">
-          <node pkg="rosbag" type="record" name="Experiment_$(arg object_size)_$(arg object_weight)_$(arg prototype)"
-      args="record -o $(find arduino_magnetic_sensor)/files/ros_bags/rosbag_Experiment_$(arg object_size)_$(arg object_weight)_$(arg prototype) /xServTopic /xServTopic_calibrated" />
-      </group> -->
+      <group if="$(arg save_data)">
+          <node pkg="rosbag" type="record" name="Experiment_$(arg object)_$(arg object_info)_$(arg prototype)_$(arg object_number)"
+      args="record -o $(find arduino_magnetic_sensor)/files/ros_bags/Grasp_Experiment_$(arg object)_$(arg object_info)_$(arg prototype)_$(arg object_number) /xServTopic /xServTopic_calibrated /xServTopic_event /xServTopic_calibrated_event /contact_decision /contact_thereshold" />
+      </group>
 
 </launch>

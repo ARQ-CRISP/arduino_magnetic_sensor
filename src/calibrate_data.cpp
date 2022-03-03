@@ -14,20 +14,27 @@
 
 #include <ros/ros.h>
 #include "arduino_magnetic_sensor/xServerMsg.h"
+#include <std_msgs/Int32.h>
+#include <std_msgs/Float32.h>
 
 
 #include <cmath>
 // #include <math.h>
 
 // Hardcoded values retrieved from trial & error -> Might need to be changed
-#define XNODEMAXREAD 6000
-#define YNODEMAXREAD 6000
-#define ZNODEMAXREAD 9000
+// #define XNODEMAXREAD 6000
+// #define YNODEMAXREAD 6000
+// #define ZNODEMAXREAD 9000
+#define XNODEMAXREAD 500
+#define YNODEMAXREAD 500
+#define ZNODEMAXREAD 500
 #define CONTACT_THERESHOLD 2 // Might need to be changed
 
 using namespace std;
 
-ros::Publisher calibrated_data_publisher, event_raw_data_publisher, event_calibrated_data_publisher; // Publish latest normalized sensor values
+ros::Publisher calibrated_data_publisher, event_raw_data_publisher, 
+event_calibrated_data_publisher, contact_decision_publisher,
+contact_thereshold_publisher; // Publish latest raw/normalized sensor values and contact information
 
 float uskin_pad_readings[4][3]; // Data structure holding current sensor reading values
 float uskin_pad_min_reads[4][3] = {{65000, 65000, 65000},
@@ -43,6 +50,8 @@ bool contactDetection(arduino_magnetic_sensor::xServerMsg sensor_data)
   float data_diff[4][3];
   float mean = 0;
   float sum = 0;
+  std_msgs::Float32 msg_contact_thereshold;
+  std_msgs::Int32 msg_contact_detection;
 
   // Computing standard deviation accross all taxels and 3D channels
   for (int i = 0; i < 4; i++)
@@ -68,10 +77,21 @@ bool contactDetection(arduino_magnetic_sensor::xServerMsg sensor_data)
 
   sum = sum / 12;
 
+  
+  msg_contact_thereshold.data = sqrt(sum);
+  contact_thereshold_publisher.publish(msg_contact_thereshold);
+  
   // Return true if std deviation if
   if (sqrt(sum) > CONTACT_THERESHOLD)
+  {
+    msg_contact_detection.data = 1;
+    contact_decision_publisher.publish(msg_contact_detection);
     return true;
 
+  }
+
+  msg_contact_detection.data = 0;
+  contact_decision_publisher.publish(msg_contact_detection);
   return false;
 
 }
@@ -90,6 +110,10 @@ void normalize(float sensor_data[][3], arduino_magnetic_sensor::xServerMsg *norm
     taxel_data.point.x = (((sensor_data[index][0] - uskin_pad_min_reads[index][0]) / (XNODEMAXREAD - uskin_pad_min_reads[index][0])) * 100);
     taxel_data.point.y = (((sensor_data[index][1] - uskin_pad_min_reads[index][1]) / (YNODEMAXREAD - uskin_pad_min_reads[index][1])) * 100);
     taxel_data.point.z = (((sensor_data[index][2] - uskin_pad_min_reads[index][2]) / (ZNODEMAXREAD - uskin_pad_min_reads[index][2])) * 100);
+
+    taxel_data.point.x = (((sensor_data[index][0] - uskin_pad_min_reads[index][0]) / XNODEMAXREAD) * 100);
+    taxel_data.point.y = (((sensor_data[index][1] - uskin_pad_min_reads[index][1]) / YNODEMAXREAD) * 100);
+    taxel_data.point.z = (((sensor_data[index][2] - uskin_pad_min_reads[index][2]) / ZNODEMAXREAD) * 100);
 
 
     // Force normalized valies to be within boundaries 0 - 100
@@ -181,6 +205,9 @@ int main(int argc, char **argv)
   calibrated_data_publisher = nh.advertise<arduino_magnetic_sensor::xServerMsg>("/xServTopic_calibrated", 1, true);
   event_raw_data_publisher = nh.advertise<arduino_magnetic_sensor::xServerMsg>("/xServTopic_event", 1, true);
   event_calibrated_data_publisher = nh.advertise<arduino_magnetic_sensor::xServerMsg>("/xServTopic_calibrated_event", 1, true);
+  calibrated_data_publisher = nh.advertise<arduino_magnetic_sensor::xServerMsg>("/xServTopic_calibrated", 1, true);
+  contact_decision_publisher = nh.advertise<std_msgs::Int32>("/contact_decision", 1, true);
+  contact_thereshold_publisher = nh.advertise<std_msgs::Float32>("/contact_thereshold", 1, true);
 
   ros::Subscriber sub = nh.subscribe("/xServTopic", 1000, ploterCallback);
 
