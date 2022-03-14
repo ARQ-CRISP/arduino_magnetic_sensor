@@ -103,7 +103,7 @@ void normalize(float sensor_data[][3], arduino_magnetic_sensor::xServerMsg *norm
   // cout << "values before normalize: x: "<< sensor_data[0][0] << "  y: " << sensor_data[0][1] << "  z: " << sensor_data[0][2] << endl;
   // cout << "uskin min reads: "<< uskin_pad_min_reads[0][0] << "  y: " << uskin_pad_min_reads[0][1] << "  z: " << uskin_pad_min_reads[0][2] << endl;
 
-  for (int index; index < 4; index++ )
+  for (int index = 0; index < 4; index++ )
   {
     arduino_magnetic_sensor::xSensorData taxel_data;
     taxel_data.taxels = index;
