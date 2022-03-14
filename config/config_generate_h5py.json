@@ -1,0 +1,14 @@
+
+{
+    "experiment" : {
+        "object" : "grape",
+        "state": "new",
+        "sensor_prototype" : "dragonskin_50_cilia",
+        "object_num": 10,
+        "experiment_num" : 0
+    },
+    "tactile_data_path" : "/home/rodrigo/Documents/github/catkin_magnetic_sensor/src/arduino_magnetic_sensor/files/grapes_rosbags/",
+    "h5py_file_path": "/home/rodrigo/Documents/github/catkin_magnetic_sensor/src/arduino_magnetic_sensor/files/grapes_labels/",
+    "h5py_tactile_file_name": "slipDataset_${object}_tactile_test.h5"
+
+}

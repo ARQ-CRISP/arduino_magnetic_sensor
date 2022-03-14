@@ -1,0 +1,20 @@
+<launch>
+
+  <param name="output_readings_file" value="$(find arduino_magnetic_sensor)/files/txt/trash"/>
+
+  <!-- include grid map visualizer launcher-->
+  <!-- <include file="$(find arduino_magnetic_sensor)/launch/grid_map_visualization.launch">
+    <arg name="replay_recording" value="true"/>
+    <arg name="min_readings_file" default="$(find arduino_magnetic_sensor)/files/txt/Grasp___back"/>
+  </include> -->
+
+  <!-- Launch Keyboard reader node for manual labelling. Rosbag recorder node-->
+
+  <node name="generate_h5py" pkg="arduino_magnetic_sensor" type="generate_h5py.py" output="screen" >
+    <param name="json_file_name" value="$(find arduino_magnetic_sensor)/config/config_generate_h5py.json"/>
+  </node>
+
+  <include file="$(find arduino_magnetic_sensor)/launch/grid_map_visualization.launch">
+  </include>
+
+</launch>

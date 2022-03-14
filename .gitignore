@@ -1,2 +1,7 @@
 files/
 .vscode/
+__pycache__/
+results/
+
+*.pyc
+

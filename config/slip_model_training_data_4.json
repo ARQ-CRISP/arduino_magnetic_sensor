@@ -1,0 +1,16 @@
+{
+"data_path" :"/home/rodrigo/Documents/github/catkin_magnetic_sensor/src/arduino_magnetic_sensor/files/grapes_labels/grape_tactile.h5",
+    
+"window_size" : 5,
+"data_split": "val_and_test",
+
+"train_object_list" : ["grape_1", "grape_2", "grape_3", "grape_4", "grape_5", "grape_6", "grape_7", "grape_8"],
+"test_object_list" : ["grape_9", "grape_10"],
+"train_experiments" : [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
+"test_experiments" : [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
+
+"rf_max_depth" : null,
+"rf_decision_trees" : 200,
+"classification_prob_thereshold" : null
+
+}

@@ -1,0 +1,22 @@
+{
+    
+"id" : ["0", "1", "2", "3"],
+
+"id_x_channel" : {"0_X": 0, "1_X": 1, "2_X": 2, "3_X": 3},
+  
+"id_y_channel" : {"0_Y": 0, "1_Y": 1, "2_Y": 2, "3_Y": 3},
+  
+"id_z_channel" : {"0_Z": 0, "1_Z": 1, "2_Z": 2, "3_Z": 3},
+
+"id_x_channel_calibrated" : {"0_X_cal": 0, "1_X_cal": 1, "2_X_cal": 2, "3_X_cal": 3},
+  
+"id_y_channel_calibrated" : {"0_Y_cal": 0, "1_Y_cal": 1, "2_Y_cal": 2, "3_Y_cal": 3},
+  
+"id_z_channel_calibrated" : {"0_Z_cal": 0, "1_Z_cal": 1, "2_Z_cal": 2, "3_Z_cal": 3},
+
+"id_x_channel_diff" : ["0_X_diff", "1_X_diff", "2_X_diff",  "3_X_diff"],
+
+"id_y_channel_diff" : ["0_Y_diff", "1_Y_diff", "2_Y_diff",  "3_Y_diff"],
+
+"id_z_channel_diff" : ["0_Z_diff", "1_Z_diff", "2_Z_diff",  "3_Z_diff"]
+}
