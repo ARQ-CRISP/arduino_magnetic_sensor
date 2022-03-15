@@ -1,5 +1,5 @@
 <launch>
-  <group ns="sensor1">
+
     <!-- Optional arguments to include-->
     <arg name="object" default="grape" />
     <arg name="object_number" default="1" />
@@ -23,33 +23,33 @@
 
     <!-- include rqt_plot visualizer node, the arguments can be changed-->
     <node name="rqt_plot" pkg="rqt_plot" type="rqt_plot"
-      args="/sensor1/xServTopic_calibrated_event/points[0]/point/x
-      /sensor1/xServTopic_calibrated_event/points[0]/point/y
-      /sensor1/xServTopic_calibrated_event/points[0]/point/z
-      /sensor1/xServTopic_calibrated_event/points[1]/point/x
-      /sensor1/xServTopic_calibrated_event/points[1]/point/y
-      /sensor1/xServTopic_calibrated_event/points[1]/point/z
-      /sensor1/xServTopic_calibrated_event/points[2]/point/x
-      /sensor1/xServTopic_calibrated_event/points[2]/point/y
-      /sensor1/xServTopic_calibrated_event/points[2]/point/z
-      /sensor1/xServTopic_calibrated_event/points[3]/point/x
-      /sensor1/xServTopic_calibrated_event/points[3]/point/y
-      /sensor1/xServTopic_calibrated_event/points[3]/point/z"/>
+      args="/xServTopic_calibrated_event/points[0]/point/x
+      /xServTopic_calibrated_event/points[0]/point/y
+      /xServTopic_calibrated_event/points[0]/point/z
+      /xServTopic_calibrated_event/points[1]/point/x
+      /xServTopic_calibrated_event/points[1]/point/y
+      /xServTopic_calibrated_event/points[1]/point/z
+      /xServTopic_calibrated_event/points[2]/point/x
+      /xServTopic_calibrated_event/points[2]/point/y
+      /xServTopic_calibrated_event/points[2]/point/z
+      /xServTopic_calibrated_event/points[3]/point/x
+      /xServTopic_calibrated_event/points[3]/point/y
+      /xServTopic_calibrated_event/points[3]/point/z"/>
 
       <!-- Same as before, but exposing the calibrate, event-driven sensor data-->
       <node name="rqt_plot2" pkg="rqt_plot" type="rqt_plot"
-        args="/sensor1/xServTopic_event/points[0]/point/x
-        /sensor1/xServTopic_event/points[0]/point/y
-        /sensor1/xServTopic_event/points[0]/point/z
-        /sensor1/xServTopic_event/points[1]/point/x
-        /sensor1/xServTopic_event/points[1]/point/y
-        /sensor1/xServTopic_event/points[1]/point/z
-        /sensor1/xServTopic_event/points[2]/point/x
-        /sensor1/xServTopic_event/points[2]/point/y
-        /sensor1/xServTopic_event/points[2]/point/z
-        /sensor1/xServTopic_event/points[3]/point/x
-        /sensor1/xServTopic_event/points[3]/point/y
-        /sensor1/xServTopic_event/points[3]/point/z"/>
+        args="/xServTopic_event/points[0]/point/x
+        /xServTopic_event/points[0]/point/y
+        /xServTopic_event/points[0]/point/z
+        /xServTopic_event/points[1]/point/x
+        /xServTopic_event/points[1]/point/y
+        /xServTopic_event/points[1]/point/z
+        /xServTopic_event/points[2]/point/x
+        /xServTopic_event/points[2]/point/y
+        /xServTopic_event/points[2]/point/z
+        /xServTopic_event/points[3]/point/x
+        /xServTopic_event/points[3]/point/y
+        /xServTopic_event/points[3]/point/z"/>
 
 
       <!-- Optional node to record ROS topics data-->
@@ -57,5 +57,5 @@
           <node pkg="rosbag" type="record" name="Experiment_$(arg object)_$(arg object_info)_$(arg prototype)_$(arg object_number)"
       args="record -o $(find arduino_magnetic_sensor)/files/ros_bags/Grasp_Experiment_$(arg object)_$(arg object_info)_$(arg prototype)_$(arg object_number) /xServTopic /xServTopic_calibrated /xServTopic_event /xServTopic_calibrated_event /contact_decision /contact_thereshold" />
       </group> -->
-  </group>
+
 </launch>

@@ -202,14 +202,14 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "calibrate_data");
   ros::NodeHandle nh("~");
 
-  calibrated_data_publisher = nh.advertise<arduino_magnetic_sensor::xServerMsg>("/xServTopic_calibrated", 1, true);
-  event_raw_data_publisher = nh.advertise<arduino_magnetic_sensor::xServerMsg>("/xServTopic_event", 1, true);
-  event_calibrated_data_publisher = nh.advertise<arduino_magnetic_sensor::xServerMsg>("/xServTopic_calibrated_event", 1, true);
-  calibrated_data_publisher = nh.advertise<arduino_magnetic_sensor::xServerMsg>("/xServTopic_calibrated", 1, true);
-  contact_decision_publisher = nh.advertise<std_msgs::Int32>("/contact_decision", 1, true);
-  contact_thereshold_publisher = nh.advertise<std_msgs::Float32>("/contact_thereshold", 1, true);
+  calibrated_data_publisher = nh.advertise<arduino_magnetic_sensor::xServerMsg>("xServTopic_calibrated", 1, true);
+  event_raw_data_publisher = nh.advertise<arduino_magnetic_sensor::xServerMsg>("xServTopic_event", 1, true);
+  event_calibrated_data_publisher = nh.advertise<arduino_magnetic_sensor::xServerMsg>("xServTopic_calibrated_event", 1, true);
+  calibrated_data_publisher = nh.advertise<arduino_magnetic_sensor::xServerMsg>("xServTopic_calibrated", 1, true);
+  contact_decision_publisher = nh.advertise<std_msgs::Int32>("contact_decision", 1, true);
+  contact_thereshold_publisher = nh.advertise<std_msgs::Float32>("contact_thereshold", 1, true);
 
-  ros::Subscriber sub = nh.subscribe("/xServTopic", 1000, ploterCallback);
+  ros::Subscriber sub = nh.subscribe("xServTopic", 1000, ploterCallback);
 
   ros::spin();
   // Wait for next cycle.
