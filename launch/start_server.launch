@@ -4,8 +4,8 @@
     <arg name="object" default="grape" />
     <arg name="object_number" default="1" />
     <arg name="object_info" default="single" />
-    <arg name="prototype" default="dragonskin_30_cilia" />
-    <arg name="save_data" default="true" />
+    <arg name="prototype" default="cilia" />
+    <arg name="save_data" default="false" />
 
     <node name="serial_node" pkg="rosserial_python" type="serial_node.py">
         <!-- <param name="port" type="string" value="/dev/ttyACM0"/> -->
@@ -55,8 +55,7 @@
       <!-- Optional node to record ROS topics data-->
       <group if="$(arg save_data)">
           <node pkg="rosbag" type="record" name="Experiment_$(arg object)_$(arg object_info)_$(arg prototype)_$(arg object_number)"
-      args="record -o /home/rodrigo/Desktop/NES/wootzano_exp/Grasp_Experiment_$(arg object)_$(arg object_info)_$(arg prototype)_$(arg object_number) /xServTopic /xServTopic_calibrated /xServTopic_event /xServTopic_calibrated_event /contact_decision /contact_thereshold" />
-      <!-- args="record -o $(find arduino_magnetic_sensor)/files/ros_bags/Grasp_Experiment_$(arg object)_$(arg object_info)_$(arg prototype)_$(arg object_number) /xServTopic /xServTopic_calibrated /xServTopic_event /xServTopic_calibrated_event /contact_decision /contact_thereshold" /> -->
+      args="record -o $(find arduino_magnetic_sensor)/files/Grasp_Experiment_$(arg object)_$(arg object_info)_$(arg prototype)_$(arg object_number) /xServTopic /xServTopic_calibrated /xServTopic_event /xServTopic_calibrated_event /contact_decision /contact_thereshold" />
       </group>
 
 </launch>
