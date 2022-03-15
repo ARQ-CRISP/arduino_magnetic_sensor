@@ -15,9 +15,6 @@ find_package(catkin REQUIRED COMPONENTS
   rosserial_client
   message_generation
   std_msgs
-  grid_map_ros
-  grid_map_msgs
-
 )
 
 add_message_files(
@@ -69,11 +66,6 @@ include_directories(
 )
 
 add_executable(
-  grid_map_ploter_arduino
-  src/grid_map_ploter.cpp
-)
-
-add_executable(
   calibrate_data
   src/calibrate_data.cpp
 )
@@ -83,13 +75,7 @@ target_link_libraries(
   ${catkin_LIBRARIES}
 )
 
-target_link_libraries(
-  grid_map_ploter_arduino
-  ${catkin_LIBRARIES}
-)
-
 ## This makes sure message headers of this package are generated before being used.
-add_dependencies(grid_map_ploter_arduino arduino_magnetic_sensor_generate_messages_cpp)
 add_dependencies(calibrate_data arduino_magnetic_sensor_generate_messages_cpp)
 
 #############

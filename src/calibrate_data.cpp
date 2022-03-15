@@ -6,7 +6,7 @@
  *
  */
 /**
- * \file grid_map_plotter.cpp
+ * \file calibrate_data.cpp
  *
  * \author Rodrigo Neves Zenha
  * \copyright  Released under the terms of the GNU GPL v3.0.

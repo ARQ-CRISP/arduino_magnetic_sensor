@@ -1,0 +1,34 @@
+<launch>
+
+      <!-- include rqt_plot visualizer node, the arguments can be changed-->
+    <!-- <node name="rqt_plot" pkg="rqt_plot" type="rqt_plot"
+      args="/xServTopic_calibrated/points[0]/point/x
+      /xServTopic_calibrated/points[0]/point/y
+      /xServTopic_calibrated/points[0]/point/z
+      /xServTopic_calibrated/points[1]/point/x
+      /xServTopic_calibrated/points[1]/point/y
+      /xServTopic_calibrated/points[1]/point/z
+      /xServTopic_calibrated/points[2]/point/x
+      /xServTopic_calibrated/points[2]/point/y
+      /xServTopic_calibrated/points[2]/point/z
+      /xServTopic_calibrated/points[3]/point/x
+      /xServTopic_calibrated/points[3]/point/y
+      /xServTopic_calibrated/points[3]/point/z"/> -->
+
+
+  <!-- Same as before, but exposing the calibrate, event-driven sensor data-->
+  <node name="rqt_plot" pkg="rqt_plot" type="rqt_plot"
+    args="/xServTopic_calibrated_event/points[0]/point/x
+    /xServTopic_calibrated_event/points[0]/point/y
+    /xServTopic_calibrated_event/points[0]/point/z
+    /xServTopic_calibrated_event/points[1]/point/x
+    /xServTopic_calibrated_event/points[1]/point/y
+    /xServTopic_calibrated_event/points[1]/point/z
+    /xServTopic_calibrated_event/points[2]/point/x
+    /xServTopic_calibrated_event/points[2]/point/y
+    /xServTopic_calibrated_event/points[2]/point/z
+    /xServTopic_calibrated_event/points[3]/point/x
+    /xServTopic_calibrated_event/points[3]/point/y
+    /xServTopic_calibrated_event/points[3]/point/z"/>
+
+</launch>

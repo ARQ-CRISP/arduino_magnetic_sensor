@@ -3,8 +3,8 @@
     <!-- Optional arguments to include-->
     <arg name="object" default="grape" />
     <arg name="object_number" default="1" />
-    <arg name="object_info" default="old" />
-    <arg name="prototype" default="dragonskin_50_cilia" />
+    <arg name="object_info" default="single" />
+    <arg name="prototype" default="dragonskin_30_cilia" />
     <arg name="save_data" default="true" />
 
     <node name="serial_node" pkg="rosserial_python" type="serial_node.py">
@@ -18,8 +18,8 @@
     </node>
 
     <!-- include grid map visualizer launcher-->
-    <!-- <include file="$(find arduino_magnetic_sensor)/launch/grid_map_visualization.launch">
-    </include> -->
+    <include file="$(find arduino_magnetic_sensor)/launch/data_visualization.launch">
+    </include>
 
     <!-- include rqt_plot visualizer node, the arguments can be changed-->
     <!-- <node name="rqt_plot" pkg="rqt_plot" type="rqt_plot"
@@ -55,7 +55,8 @@
       <!-- Optional node to record ROS topics data-->
       <group if="$(arg save_data)">
           <node pkg="rosbag" type="record" name="Experiment_$(arg object)_$(arg object_info)_$(arg prototype)_$(arg object_number)"
-      args="record -o $(find arduino_magnetic_sensor)/files/ros_bags/Grasp_Experiment_$(arg object)_$(arg object_info)_$(arg prototype)_$(arg object_number) /xServTopic /xServTopic_calibrated /xServTopic_event /xServTopic_calibrated_event /contact_decision /contact_thereshold" />
+      args="record -o /home/rodrigo/Desktop/NES/wootzano_exp/Grasp_Experiment_$(arg object)_$(arg object_info)_$(arg prototype)_$(arg object_number) /xServTopic /xServTopic_calibrated /xServTopic_event /xServTopic_calibrated_event /contact_decision /contact_thereshold" />
+      <!-- args="record -o $(find arduino_magnetic_sensor)/files/ros_bags/Grasp_Experiment_$(arg object)_$(arg object_info)_$(arg prototype)_$(arg object_number) /xServTopic /xServTopic_calibrated /xServTopic_event /xServTopic_calibrated_event /contact_decision /contact_thereshold" /> -->
       </group>
 
 </launch>
